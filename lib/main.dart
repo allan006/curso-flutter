@@ -1,43 +1,18 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
+class MyApp extends StatefulWidget {
+  MyApp({Key? key}) : super(key: key);
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<MyApp> createState() => _MyAppState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
+class _MyAppState extends State<MyApp> {
+  bool opacidade = true;
 
   @override
   Widget build(BuildContext context) {
@@ -51,14 +26,41 @@ class _MyHomePageState extends State<MyHomePage> {
           leading: Container(),
           title: Text('Tarefas'),
         ),
-        body: ListView(
-          children: [
-            Task('Aprender Flutter'),
-            Task('Andar de Bike'),
-            Task('Meditar'),
-          ],
+        body: AnimatedOpacity(
+          opacity: opacidade ? 1 : 0,
+          duration: Duration(milliseconds: 800),
+          child: ListView(
+            children: [
+              Task(
+                  'Aprender Flutter',
+                  'https://pbs.twimg.com/media/Eu7m692XIAEvxxP?format=png&name=large',
+                  3),
+              Task(
+                  'Andar de Bike',
+                  'https://tswbike.com/wp-content/uploads/2020/09/108034687_626160478000800_2490880540739582681_n-e1600200953343.jpg',
+                  2),
+              Task(
+                  'Meditar',
+                  'https://manhattanmentalhealthcounseling.com/wp-content/uploads/2019/06/Top-5-Scientific-Findings-on-MeditationMindfulness-881x710.jpeg',
+                  5),
+              Task(
+                  'Ler',
+                  'https://thebogotapost.com/wp-content/uploads/2017/06/636052464065850579-137719760_flyer-image-1.jpg',
+                  4),
+              Task('Jogar',
+                  'https://i.ibb.co/tB29PZB/kako-epifania-2022-2-c-pia.jpg', 1),
+            ],
+          ),
         ),
-        floatingActionButton: FloatingActionButton(onPressed: () {}),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            setState(() {
+              opacidade = !opacidade;
+            });
+          },
+          child: Icon(
+              opacidade ? Icons.remove_red_eye_outlined : Icons.remove_red_eye),
+        ),
       ),
     );
   }
@@ -66,8 +68,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
 class Task extends StatefulWidget {
   final String nome;
+  final String foto;
+  final int dificuldade;
 
-  const Task(this.nome, {super.key});
+  const Task(this.nome, this.foto, this.dificuldade, {super.key});
 
   @override
   State<Task> createState() => _TaskState();
@@ -84,29 +88,76 @@ class _TaskState extends State<Task> {
         child: Stack(
           children: [
             Container(
-              color: Colors.blue,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(4), color: Colors.blue),
               height: 140,
             ),
             Column(
               children: [
                 Container(
-                  color: Colors.white,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(4),
+                      color: Colors.white),
                   height: 100,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Container(
-                        color: Colors.black26,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(4),
+                            color: Colors.black26),
                         width: 72,
                         height: 100,
-                      ),
-                      Container(
-                        width: 200,
-                        child: Text(
-                          widget.nome,
-                          style: TextStyle(fontSize: 24),
-                          overflow: TextOverflow.ellipsis,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: Image.network(
+                            widget.foto,
+                            fit: BoxFit.cover,
+                          ),
                         ),
+                      ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: 200,
+                            child: Text(
+                              widget.nome,
+                              style: TextStyle(fontSize: 24),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              Icon(Icons.star,
+                                  size: 15,
+                                  color: widget.dificuldade >= 1
+                                      ? Colors.blue
+                                      : Colors.blue[100]),
+                              Icon(Icons.star,
+                                  size: 15,
+                                  color: widget.dificuldade >= 2
+                                      ? Colors.blue
+                                      : Colors.blue[100]),
+                              Icon(Icons.star,
+                                  size: 15,
+                                  color: widget.dificuldade >= 3
+                                      ? Colors.blue
+                                      : Colors.blue[100]),
+                              Icon(Icons.star,
+                                  size: 15,
+                                  color: widget.dificuldade >= 4
+                                      ? Colors.blue
+                                      : Colors.blue[100]),
+                              Icon(Icons.star,
+                                  size: 15,
+                                  color: widget.dificuldade >= 5
+                                      ? Colors.blue
+                                      : Colors.blue[100]),
+                            ],
+                          )
+                        ],
                       ),
                       Container(
                         height: 52,
@@ -122,7 +173,10 @@ class _TaskState extends State<Task> {
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Icon(Icons.arrow_drop_up),
-                                Text('UP', style: TextStyle(fontSize: 12),)
+                                Text(
+                                  'UP',
+                                  style: TextStyle(fontSize: 12),
+                                )
                               ],
                             )),
                       )
@@ -138,7 +192,9 @@ class _TaskState extends State<Task> {
                         width: 200,
                         child: LinearProgressIndicator(
                           color: Colors.white,
-                          value: nivel / 10,
+                          value: widget.dificuldade > 0
+                              ? (nivel / widget.dificuldade) / 10
+                              : 1,
                         ),
                       ),
                     ),
